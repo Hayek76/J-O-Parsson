@@ -1,0 +1,55 @@
+Here is an example of how you can retrieve the data using Python and the FRED API, and then store it on the IPFS:
+
+import requests
+import json
+import ipfshttpclient
+
+# Set up FRED API credentials
+api_key = 'your-api-key-here'
+url = 'https://api.stlouisfed.org/fred/series/observations'
+params = {
+    'api_key': api_key,
+    'series_id': 'M2V',
+    'file_type': 'json'
+}
+
+# Retrieve data from FRED API
+response = requests.get(url, params=params)
+data = json.loads(response.text)
+
+# Connect to IPFS
+client = ipfshttpclient.connect('/ip4/127.0.0.1/tcp/5001')
+
+# Add data to IPFS
+ipfs_data = client.add_json(data)
+
+# Print IPFS hash for the added data
+print(ipfs_data['Hash'])
+
+This script retrieves the latest data for the M2V series from the FRED API, converts the response to JSON format, 
+and then adds the JSON data to IPFS. The IPFS hash for the added data is then printed to the console.
+
+Once the data is stored on IPFS, you can use it in your Solidity smart contract by reading the IPFS hash and then 
+retrieving the data from IPFS. Here is an example of how to do this:
+
+pragma solidity ^0.8.0;
+
+import "ipfs-core/Interface.go";
+
+contract MoneyVelocity {
+    InterfaceIPFS public ipfs;
+
+    constructor(address _ipfsAddress) {
+        ipfs = InterfaceIPFS(_ipfsAddress);
+    }
+
+    function getMoneyVelocity() public view returns (string memory) {
+        bytes memory data = ipfs.cat("Qm..."); // replace with IPFS hash of data
+        return string(data);
+    }
+}
+
+This Solidity contract defines a function called getMoneyVelocity that retrieves the data 
+from IPFS using the IPFS hash and returns it as a string. The IPFS interface is used to access 
+the IPFS node, which is assumed to be deployed at the address specified in the constructor. 
+Replace "Qm..." with the IPFS hash of the data that was added using the Python script.
