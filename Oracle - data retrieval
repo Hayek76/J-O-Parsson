@@ -54,3 +54,34 @@ This Solidity contract defines a function called getMoneyVelocity that retrieves
 from IPFS using the IPFS hash and returns it as a string. The IPFS interface is used to access 
 the IPFS node, which is assumed to be deployed at the address specified in the constructor. 
 Replace "Qm..." with the IPFS hash of the data that was added using the Python script.
+
+Here's an example Python code that retrieves the latest GDP data from FRED, stores it in IPFS, and returns the IPFS hash:
+
+import requests
+import ipfshttpclient
+
+# Retrieve the latest GDP data from FRED API
+api_key = "YOUR_API_KEY"
+url = f"https://api.stlouisfed.org/fred/series/observations?series_id=GDP&api_key={api_key}&file_type=json"
+response = requests.get(url)
+data = response.json()["observations"][-1]
+
+# Store the GDP data in IPFS
+client = ipfshttpclient.connect()
+hash = client.add_str(data["value"])["Hash"]
+
+# Print the IPFS hash for testing
+print("IPFS hash:", hash)
+
+To make the IPFS hash compatible with your smart contract, you can define a variable in your contract to 
+store the hash and create a function to update it. Here's an example Solidity code:
+
+pragma solidity ^0.8.0;
+
+contract MyContract {
+    string public gdpHash;
+
+    function updateGDPHash(string memory newHash) public {
+        gdpHash = newHash;
+    }
+}
