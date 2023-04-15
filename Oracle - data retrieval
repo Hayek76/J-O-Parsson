@@ -55,6 +55,7 @@ from IPFS using the IPFS hash and returns it as a string. The IPFS interface is 
 the IPFS node, which is assumed to be deployed at the address specified in the constructor. 
 Replace "Qm..." with the IPFS hash of the data that was added using the Python script.
 
+Retrieving GDP data:
 Here's an example Python code that retrieves the latest GDP data from FRED, stores it in IPFS, and returns the IPFS hash:
 
 import requests
