@@ -1,0 +1,84 @@
+Here's an example of a Solidity smart contract that uses your stored money velocity and GDP values on IPFS to adjust the currency 
+supply and maintain stable prices:
+
+pragma solidity ^0.8.0;
+
+interface IIPFS {
+    function getData(string calldata _hash) external view returns (bytes memory);
+}
+
+contract PriceOracle {
+    address public ipfsAddress = YOUR_IPFS_ADDRESS_HERE;
+    string public velocityHash = "YOUR_VELOCITY_HASH_HERE";
+    string public gdpHash = "YOUR_GDP_HASH_HERE";
+    
+    function getMoneyVelocity() public view returns (uint256) {
+        IIPFS ipfs = IIPFS(ipfsAddress);
+        bytes memory data = ipfs.getData(velocityHash);
+        require(data.length > 0, "Data not found");
+        return abi.decode(data, (uint256));
+    }
+    
+    function getGDP() public view returns (uint256) {
+        IIPFS ipfs = IIPFS(ipfsAddress);
+        bytes memory data = ipfs.getData(gdpHash);
+        require(data.length > 0, "Data not found");
+        return abi.decode(data, (uint256));
+    }
+}
+
+contract StableCoin {
+    uint256 public totalSupply;
+    mapping(address => uint256) public balances;
+    
+    uint256 public constant initialSupply = 10000;
+    string public constant name = "My Stable Coin";
+    string public constant symbol = "MSC";
+    uint8 public constant decimals = 18;
+    
+    PriceOracle public oracle;
+    
+    constructor(address _oracleAddress) {
+        totalSupply = initialSupply * (10 ** decimals);
+        balances[msg.sender] = totalSupply;
+        oracle = PriceOracle(_oracleAddress);
+    }
+    
+    function getPrices() public view returns (uint256) {
+        uint256 velocity = oracle.getMoneyVelocity();
+        uint256 gdp = oracle.getGDP();
+        require(gdp > 0, "Invalid GDP value");
+        return velocity * totalSupply / gdp;
+    }
+    
+    function adjustSupply() public {
+        uint256 targetPrice = 1 * (10 ** decimals);
+        uint256 currentPrice = getPrices();
+        if (currentPrice > targetPrice) {
+            uint256 supplyAdjustment = totalSupply * (currentPrice - targetPrice) / currentPrice;
+            totalSupply += supplyAdjustment;
+            balances[msg.sender] += supplyAdjustment;
+        } else if (currentPrice < targetPrice) {
+            uint256 supplyAdjustment = totalSupply * (targetPrice - currentPrice) / currentPrice;
+            totalSupply -= supplyAdjustment;
+            balances[msg.sender] -= supplyAdjustment;
+        }
+    }
+    
+    function transfer(address _to, uint256 _value) public returns (bool success) {
+        require(balances[msg.sender] >= _value, "Insufficient balance");
+        balances[msg.sender] -= _value;
+        balances[_to] += _value;
+        emit Transfer(msg.sender, _to, _value);
+        return true;
+    }
+    
+    event Transfer(address indexed _from, address indexed _to, uint256 _value);
+}
+
+This example contract defines a StableCoin that adjusts its supply based on the current prices calculated from the stored money velocity and GDP
+values obtained through the PriceOracle contract. The getPrices() function calculates the current prices using the formula you provided earlier, 
+and the adjustSupply() function adjusts the currency supply based on the difference between the current prices and the target prices.
+
+Note that you will need to replace the YOUR_IPFS_ADDRESS_HERE, YOUR_VELOCITY_HASH_HERE, and YOUR_GDP_HASH_HERE placeholders in the PriceOracle 
+contract with your actual IPFS address and hash values where
