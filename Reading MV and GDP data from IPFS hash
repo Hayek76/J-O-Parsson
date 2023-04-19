@@ -1,0 +1,33 @@
+pragma solidity ^0.8.0;
+
+import "ipfs-core/Interface.go";
+
+contract MoneyVelocity {
+    InterfaceIPFS public ipfs;
+
+    constructor(address _ipfsAddress) {
+        ipfs = InterfaceIPFS(_ipfsAddress);
+    }
+
+    function getMoneyVelocity() public view returns (string memory) {
+        bytes memory data = ipfs.cat("QmdbLfVBrLECGEYDgUNcEkPGRqJvsQFSNEQ4n3PZrDhef7"); // replace with IPFS hash of data
+        return string(data);
+    }
+}
+
+pragma solidity ^0.8.0;
+
+import "ipfs-core/Interface.go";
+
+contract GDP {
+    InterfaceIPFS public ipfs;
+
+    constructor(address _ipfsAddress) {
+        ipfs = InterfaceIPFS(_ipfsAddress);
+    }
+
+    function GDP() public view returns (string memory) {
+        bytes memory data = ipfs.cat("QmQLKCmNf52hM7zhsYwHKgC29vCzxXbiPQGWpHp8YdWW3L"); // replace with IPFS hash of data
+        return string(data);
+    }
+}
