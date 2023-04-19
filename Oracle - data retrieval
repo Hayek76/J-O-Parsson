@@ -6,7 +6,7 @@ import json
 import ipfshttpclient
 
 # Set up FRED API credentials
-api_key = 'your-api-key-here'
+api_key = 'dd6870f540a9fc15c7c542508e25cec3'
 url = 'https://api.stlouisfed.org/fred/series/observations'
 params = {
     'api_key': api_key,
